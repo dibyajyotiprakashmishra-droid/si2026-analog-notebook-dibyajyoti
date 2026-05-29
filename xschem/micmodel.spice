@@ -1,0 +1,43 @@
+** sch_path: /foss/designs/dibyajyoti/xschem/micmodel.sch
+**.subckt micmodel
+V1 vin GND 0.6 AC=1
+R1 vin1 vin 380 m=1
+R2 vref net1 4.7k m=1
+C1 net1 vin1 4.7u m=1
+R3 GND vref 10k m=1
+R4 vref net2 10k m=1
+C2 GND vref 1u m=1
+C3 vout vref 27p m=1
+C4 GND vout 1p m=1
+E1 vout GND vref vref 3
+R5 vref vout 300k m=1
+V2 net2 GND 2.5
+**** begin user architecture code
+
+
+
+.param temp=27
+.control
+save all
+op
+ac dec 100 1 100meg
+let voutdb = vdb(vout)
+let voutabs = abs(vout)
+
+meas ac vout_1k find voutabs at=1k
+meas ac voutdb_1k find voutdb at=1k
+
+let voutm3db = voutdb_1k - 3.0
+meas ac fp3db WHEN voutdb=voutm3db fall=last
+meas ac fz3db WHEN voutdb=voutm3db rise=1
+
+write
+PLOT v(vout)
+
+.endc
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.end
